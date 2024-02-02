@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "django-ninja-benchmarks"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+packages = [{ include = "django_ninja_benchmarks" }]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+django = "4.2"
+django-ninja = "^1.1.0"
+djangorestframework = "^3.14.0"
+flask = "^3.0.1"
+marshmallow = "^3.20.2"
+sanic = "^23.12.1"
+uvicorn = "^0.27.0.post1"
+requests = "^2.31.0"
+aiohttp = "^3.9.3"
+gunicorn = { version = "^21.2.0", extras = ["gevent"] }
+psycopg = "^3.1.17"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

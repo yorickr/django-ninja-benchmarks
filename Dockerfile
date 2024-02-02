@@ -1,12 +1,14 @@
-FROM python:3.8.2
+FROM python:3.11-bullseye
 
-ENV PYTHONUNBUFFERED=1 PIP_DISABLE_PIP_VERSION_CHECK=on
+ENV PYTHONUNBUFFERED=1 PIP_DISABLE_PIP_VERSION_CHECK=on POETRY_VIRTUALENVS_CREATE=false
+WORKDIR /app
 
-COPY requirements.txt /tmp/requirements.txt
-RUN pip install -r /tmp/requirements.txt
+COPY pyproject.toml poetry.lock /app/
+RUN pip install poetry
+RUN poetry install
 
-COPY common_django_settings.py /common_django_settings.py
-COPY app_drf /app_drf
-COPY app_flask_marshmallow /app_flask_marshmallow
-COPY app_ninja /app_ninja
-COPY network_service.py /network_service.py
+COPY common_django_settings.py /app/common_django_settings.py
+COPY app_drf /app/
+COPY app_flask_marshmallow /app/
+COPY app_ninja /app/
+COPY network_service.py /app/network_service.py

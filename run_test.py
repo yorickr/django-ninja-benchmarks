@@ -1,20 +1,15 @@
-import time
-import re
 import os
-import sys
+import re
 import subprocess
-
-
-C1_FRAMEWORKS = [
-    'flask_marshmallow_uwsgi',
-    'drf_uwsgi',
-    'ninja_uwsgi',
-]
+import time
 
 CONCURRENT_FRAMEWORKS = [
-    'flask_marshmallow_uwsgi',
-    'drf_uwsgi',
+    'drf_gunicorn',
+    'ninja_gunicorn',
+    'flask_marshmallow_uvicorn',
+    'drf_uvicorn',
     'ninja_uvicorn',
+    # 'ninja_asgi',
 ]
 
 
@@ -24,12 +19,12 @@ class FrameworkService:
         self.workers = workers
 
     def __enter__(self):
-        os.system(f'WORKERS={self.workers} docker-compose up -d network_service')
-        os.system(f'WORKERS={self.workers} docker-compose up -d {self.name}')
+        os.system(f'WORKERS={self.workers} docker compose up -d network_service')
+        os.system(f'WORKERS={self.workers} docker compose up -d {self.name}')
         time.sleep(5)
 
     def __exit__(self, *a, **kw):
-        os.system(f'WORKERS={self.workers} docker-compose down')
+        os.system(f'WORKERS={self.workers} docker compose down')
 
 
 def benchmark(url, concurency, count, payload=None):
@@ -63,23 +58,21 @@ def run_c1_test():
     return benchmark('http://127.0.0.1:8000/api/create', 1, 1000, 'payload.json')
 
 
-WORKERS_CASES = list(range(1, 25))  # [14, 15, 16, 17, 18, 19, 20]
+WORKERS_CASES = [1, 2, 4, 8]
 
 
 def test_concurrent(name):
-
     results = {}
     for workers in WORKERS_CASES:
         with FrameworkService(name, workers):
             preheat()
-            res = benchmark('http://127.0.0.1:8000/api/iojob', 50, 200)
-            results[workers] = res
+            results[workers] = run_c1_test()
     return results
 
 
 def main():
-    os.system(f'docker-compose build')
-    os.system(f'docker-compose down')
+    os.system(f'docker compose build')
+    os.system(f'docker compose down')
 
     results = {}
     for framework in CONCURRENT_FRAMEWORKS:
